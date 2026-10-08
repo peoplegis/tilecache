@@ -7,7 +7,7 @@ class Disk (Cache):
     def __init__ (self, base = None, umask = '002', **kwargs):
         Cache.__init__(self, **kwargs)
         self.basedir = base
-        self.umask = int(umask, 0)
+        self.umask = int(umask, 8)
         if sys.platform.startswith("java"):
             from java.io import File
             self.file_module = File
@@ -23,7 +23,7 @@ class Disk (Cache):
             old_umask = os.umask(self.umask)
         try:
             os.makedirs(path)
-        except OSError, E:
+        except OSError as E:
             # os.makedirs can suffer a race condition because it doesn't check
             # that the directory  doesn't exist at each step, nor does it
             # catch errors. This lets 'directory exists' errors pass through,
@@ -64,7 +64,7 @@ class Disk (Cache):
             
             try:
                 mtime = os.stat(path).st_mtime
-            except Exception, E:
+            except Exception as E:
                 raise Exception( "isExpired %s %s\n", (path, E) )
                 return False
             
@@ -112,7 +112,7 @@ class Disk (Cache):
             if self.sendfile:
                 return filename
             else:
-                tile.data = file(filename, "rb").read()
+                tile.data = open(filename, "rb").read()
                 return tile.data
         else:
             return None
@@ -126,7 +126,7 @@ class Disk (Cache):
         tmpfile = filename + ".%d.tmp" % os.getpid()
         if hasattr(os, "umask"):
             old_umask = os.umask(self.umask)
-        output = file(tmpfile, "wb")
+        output = open(tmpfile, "wb")
         output.write(data)
         output.close()
         if hasattr(os, "umask"):
@@ -167,5 +167,5 @@ class Disk (Cache):
         name = self.getLockName(tile)
         try:
             os.rmdir(name)
-        except OSError, E:
-            print >>sys.stderr, "unlock %s failed: %s" % (name, str(E))
+        except OSError as E:
+            print("unlock %s failed: %s" % (name, str(E)), file=sys.stderr)

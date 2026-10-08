@@ -9,7 +9,7 @@ except:
     use_setuptools()
     from setuptools import setup
 
-readme = file('docs/README.txt','rb').read()
+readme = open('docs/README.txt','rb').read()
 
 classifiers = [
         'Development Status :: 4 - Beta',
